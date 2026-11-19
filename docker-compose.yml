@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: experiment
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: experiment
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U experiment -d experiment"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://experiment:${POSTGRES_PASSWORD}@db:5432/experiment
+      AUDIO_DIR: /data/audio
+    volumes:
+      - audio:/data/audio
+    # Bound to localhost: put a TLS reverse proxy in front (see Caddy profile below or your own nginx).
+    ports:
+      - "127.0.0.1:3000:3000"
+
+  # Optional automatic HTTPS:  docker compose --profile https up -d
+  caddy:
+    profiles: ["https"]
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [app]
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  audio:
+  caddy_data:
+  caddy_config:
