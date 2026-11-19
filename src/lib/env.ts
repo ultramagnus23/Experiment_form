@@ -25,7 +25,8 @@ export function appUrl(): string {
 
 /** Audio goes to a private Vercel Blob store when a token is configured; otherwise to local disk (AUDIO_DIR). */
 export function blobEnabled(): boolean {
-  return !!process.env.BLOB_READ_WRITE_TOKEN;
+  // Either a read-write token, or the store id (the SDK then authenticates with Vercel's OIDC token on Vercel).
+  return !!process.env.BLOB_READ_WRITE_TOKEN || !!process.env.BLOB_STORE_ID;
 }
 
 export function isSecureDeployment(): boolean {

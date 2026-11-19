@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { upload as blobUpload } from '@vercel/blob/client';
+import { uploadPresigned as blobUpload } from '@vercel/blob/client';
 import { api, fmtDate } from './fmt';
 
 export default function SettingsTab({ onChange }: { onChange: () => void }) {
