@@ -34,7 +34,9 @@ export const GET = admin(async (_req, { email, params }) => {
              p.audio_version_id, v.sha256 AS audio_sha256, p.playback_volume, p.audio_status, p.audio_interrupted,
              (SELECT count(*)::int FROM audio_events e WHERE e.participant_id = p.id) AS audio_event_count,
              p.trial_started_at, p.trial_resumed, p.decision, p.latency_ms, p.latency_seconds, p.latency_source,
-             p.server_elapsed_ms, p.submitted_at, p.flags, p.excluded
+             p.server_elapsed_ms, p.submitted_at, p.flags, p.excluded,
+             p.manip_distraction, p.manip_talking, p.manip_positive, p.attention_answer,
+             p.manip_at, p.debrief_at
         FROM participants p LEFT JOIN audio_versions v ON v.id = p.audio_version_id
        ORDER BY p.created_at`);
     rowCount = rows.length;

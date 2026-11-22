@@ -16,7 +16,12 @@ export async function buildState(p: ParticipantRow | null, s: Settings): Promise
     const a = await acceptingParticipants(s);
     return a.open ? { stage: 'consent', studyLocation: s.study_location } : { stage: 'closed', closedReason: a.reason };
   }
-  const stage = stageOf(p.status);
+  let stage = stageOf(p.status);
+  // After the decision (status 'completed') the participant still answers the manipulation check, then reads the debrief.
+  if (stage === 'complete') {
+    if (!p.manip_at) stage = 'manipulation';
+    else if (!p.debrief_at) stage = 'debrief';
+  }
   if (stage === 'consent') return { stage, studyLocation: s.study_location };
   if (stage === 'trial' && p.condition) {
     const vol = p.playback_volume !== null ? Number(p.playback_volume) : 0;

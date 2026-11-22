@@ -14,6 +14,8 @@ export interface ParticipantRow {
   trial_started_at: Date | null;
   trial_resumed: boolean;
   decision: string | null;
+  manip_at: Date | null;
+  debrief_at: Date | null;
 }
 
 export type Stage =
@@ -25,6 +27,8 @@ export type Stage =
   | 'demographics'
   | 'instructions'
   | 'trial'
+  | 'manipulation'
+  | 'debrief'
   | 'complete';
 
 export function stageOf(status: ParticipantRow['status']): Stage {
@@ -88,7 +92,7 @@ export async function currentParticipant(): Promise<ParticipantRow | null> {
   if (!/^P-[A-Z0-9]{10}$/.test(id)) return null;
   const { rows } = await query(
     `SELECT p.id, p.status, p.condition, p.framing, p.audio_type, p.audio_version_id, p.playback_volume,
-            p.trial_started_at, p.trial_resumed, p.decision, s.token_hash
+            p.trial_started_at, p.trial_resumed, p.decision, p.manip_at, p.debrief_at, s.token_hash
        FROM participants p JOIN participant_sessions s ON s.participant_id = p.id
       WHERE p.id = $1`,
     [id],

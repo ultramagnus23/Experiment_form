@@ -4,8 +4,9 @@ import { ExperimentAudio } from '@/lib/client-audio';
 import ConsentText from './ConsentText';
 import TrialPage, { TrialData } from './TrialPage';
 import { Actions, Banner, Card, Question, Radio, Shell, TitleCard } from './ui';
+import { DebriefPage, ManipulationPage } from './PostTrial';
 
-type Stage = 'closed' | 'consent' | 'declined' | 'eligibility' | 'ineligible' | 'demographics' | 'instructions' | 'trial' | 'complete';
+type Stage = 'closed' | 'consent' | 'declined' | 'eligibility' | 'ineligible' | 'demographics' | 'instructions' | 'trial' | 'manipulation' | 'debrief' | 'complete';
 interface ClientState {
   stage: Stage;
   studyLocation?: string;
@@ -161,9 +162,15 @@ export default function Experiment() {
           trial={state.trial}
           preAudio={state.trial.resumed ? null : audioRef.current}
           post={post}
-          onDone={() => setState({ stage: 'complete' })}
+          onDone={() => setState({ stage: 'manipulation' })}
         />
       );
+    case 'manipulation':
+      return (
+        <ManipulationPage busy={busy} flash={flash} onNext={(answers) => advance('/api/p/manipulation', answers)} />
+      );
+    case 'debrief':
+      return <DebriefPage busy={busy} flash={flash} onNext={() => advance('/api/p/debrief')} />;
     case 'complete':
       return (
         <Shell>

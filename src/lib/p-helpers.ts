@@ -10,7 +10,7 @@ export async function requireParticipant(): Promise<ParticipantRow | Response> {
 
 export async function participantById(id: string): Promise<ParticipantRow> {
   const { rows } = await query(
-    `SELECT id, status, condition, framing, audio_type, audio_version_id, playback_volume, trial_started_at, trial_resumed, decision
+    `SELECT id, status, condition, framing, audio_type, audio_version_id, playback_volume, trial_started_at, trial_resumed, decision, manip_at, debrief_at
        FROM participants WHERE id=$1`,
     [id],
   );
